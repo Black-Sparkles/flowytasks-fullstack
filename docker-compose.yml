@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: flowytasks
+      POSTGRES_USER: flowytasks
+      POSTGRES_PASSWORD: flowytasks
+    ports: ["5432:5432"]
+    volumes: ["flowytasks_postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowytasks -d flowytasks"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/flowytasks
+      DB_USERNAME: flowytasks
+      DB_PASSWORD: flowytasks
+    ports: ["8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8080/api
+    ports: ["5173:5173"]
+    depends_on: [backend]
+volumes:
+  flowytasks_postgres:
