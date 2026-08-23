@@ -1,12 +1,20 @@
+# IDE / OS
 .idea/
 .vscode/
 .DS_Store
+
+# Java build output
 backend/target/
+
+# Node build output
 frontend/node_modules/
 frontend/dist/
+
+# Local secrets and environment files
 .env
+.env.*
+!.env.example
 *.env.local
-.github/workflows/ci.yml
-.github/
-.github/workflows/
+
+# Misc local tooling
 Semantic-Models/

@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: flowytasks-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/tasks
+    envVars:
+      - key: DB_URL
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: flowytasks-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: flowytasks-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: flowytasks-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: flowytasks-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: flowytasks-db
+          property: password
+
+  - type: web
+    name: flowytasks
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_ORIGIN
+        fromService:
+          type: web
+          name: flowytasks-api
+          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: flowytasks-db
+    plan: free
+    databaseName: flowytasks
+    user: flowytasks
+    postgresMajorVersion: "17"
