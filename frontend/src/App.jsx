@@ -1,2 +1,118 @@
-import{useEffect,useMemo,useState}from'react';import{taskApi}from'./api';import Stats from'./components/Stats';import TaskCard from'./components/TaskCard';import TaskForm from'./components/TaskForm';
-export default function App(){const[tasks,setTasks]=useState([]),[filter,setFilter]=useState('ALL'),[editing,setEditing]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');async function load(){try{setError('');setTasks(await taskApi.list())}catch(e){setError(e.message)}finally{setLoading(false)}}useEffect(()=>{load()},[]);async function save(t){try{editing?await taskApi.update(editing.id,t):await taskApi.create(t);setEditing(null);await load()}catch(e){setError(e.message)}}async function toggle(id){try{await taskApi.toggle(id);await load()}catch(e){setError(e.message)}}async function del(id){if(!confirm('Delete this task?'))return;try{await taskApi.remove(id);if(editing?.id===id)setEditing(null);await load()}catch(e){setError(e.message)}}const visible=useMemo(()=>filter==='ACTIVE'?tasks.filter(t=>!t.completed):filter==='COMPLETED'?tasks.filter(t=>t.completed):tasks,[tasks,filter]);return <main><header className="hero"><nav><a className="brand" href="/">FlowyTasks</a></nav><div className="hero-copy"><p className="eyebrow">PLAN • BUILD • FINISH</p><h1>Keep your work moving.</h1></div></header><div className="page"><Stats tasks={tasks}/>{error&&<div className="error">{error}</div>}<div className="content-grid"><TaskForm editingTask={editing} onSave={save} onCancel={()=>setEditing(null)}/><section className="task-section"><div className="task-section-header"><div><p className="eyebrow">YOUR WORK</p><h2>Tasks</h2></div><div className="filters">{['ALL','ACTIVE','COMPLETED'].map(v=><button key={v} className={filter===v?'selected':''} onClick={()=>setFilter(v)}>{v.toLowerCase()}</button>)}</div></div>{loading?<p className="empty">Loading tasks...</p>:visible.length===0?<p className="empty">No tasks here yet. Create one and it will appear here.</p>:<div className="task-list">{visible.map(t=><TaskCard key={t.id} task={t} onToggle={toggle} onEdit={setEditing} onDelete={del}/>)}</div>}</section></div></div></main>}
+import { useState } from "react";
+import DashboardApp from "./DashboardApp";
+
+function WelcomePage({ onEnter }) {
+  return (
+    <main className="welcome-page">
+      <div className="welcome-glow welcome-glow-one" aria-hidden="true" />
+      <div className="welcome-glow welcome-glow-two" aria-hidden="true" />
+
+      <nav className="welcome-nav">
+        <a className="welcome-brand" href="/" aria-label="FlowyTasks home">
+          <span className="welcome-brand-mark">F</span>
+          <span>FlowyTasks</span>
+        </a>
+        <span className="welcome-nav-note">Make room for what matters.</span>
+      </nav>
+
+      <section className="welcome-content">
+        <div className="welcome-copy">
+          <p className="welcome-kicker">WELCOME TO FLOWYTASKS</p>
+          <h1>
+            A calmer way to keep
+            <span> life moving.</span>
+          </h1>
+          <p className="welcome-summary">
+            Bring your plans, priorities, and everyday to-dos into one clear
+            space. FlowyTasks helps you see what needs your attention, stay
+            focused on what matters now, and enjoy the satisfaction of moving
+            things forward.
+          </p>
+
+          <div className="welcome-actions">
+            <button className="welcome-enter" type="button" onClick={onEnter}>
+              Open my task space
+              <span aria-hidden="true">→</span>
+            </button>
+            <p>No clutter. Just a clearer view of your day.</p>
+          </div>
+        </div>
+
+        <div className="welcome-preview" aria-label="FlowyTasks preview">
+          <div className="preview-window">
+            <div className="preview-topbar">
+              <div className="preview-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <span>Today</span>
+            </div>
+
+            <div className="preview-body">
+              <p className="preview-label">A SIMPLE PLAN</p>
+              <h2>Move through your day with clarity.</h2>
+
+              <div className="preview-task preview-task-featured">
+                <div className="preview-check">✓</div>
+                <div>
+                  <strong>Start with what matters most</strong>
+                  <span>Keep priorities easy to spot.</span>
+                </div>
+              </div>
+
+              <div className="preview-task">
+                <div className="preview-check empty" />
+                <div>
+                  <strong>Give every task a place</strong>
+                  <span>Capture the details before they get lost.</span>
+                </div>
+              </div>
+
+              <div className="preview-task">
+                <div className="preview-check empty" />
+                <div>
+                  <strong>Enjoy the progress</strong>
+                  <span>See completed work add up.</span>
+                </div>
+              </div>
+
+              <div className="preview-progress">
+                <div>
+                  <span>Today's momentum</span>
+                  <strong>1 of 3</strong>
+                </div>
+                <div className="preview-progress-track">
+                  <span />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="welcome-float-card">
+            <span>✦</span>
+            <div>
+              <strong>Less mental clutter</strong>
+              <small>Everything has a place.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="welcome-footer">
+        <span>FlowyTasks</span>
+        <span>Plan gently. Finish confidently.</span>
+      </footer>
+    </main>
+  );
+}
+
+export default function App() {
+  const [entered, setEntered] = useState(false);
+
+  if (entered) {
+    return <DashboardApp />;
+  }
+
+  return <WelcomePage onEnter={() => setEntered(true)} />;
+}

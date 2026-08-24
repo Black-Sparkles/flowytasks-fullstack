@@ -1,1 +1,24 @@
-export default function Stats({tasks}){const completed=tasks.filter(t=>t.completed).length;const overdue=tasks.filter(t=>t.dueDate&&!t.completed&&new Date(t.dueDate+'T23:59:59')<new Date()).length;return <section className="stats">{[['Total',tasks.length],['Active',tasks.length-completed],['Completed',completed],['Overdue',overdue]].map(([a,b])=><div key={a}><span>{a}</span><strong>{b}</strong></div>)}</section>}
+export default function Stats({ tasks }) {
+  const completed = tasks.filter((t) => t.completed).length;
+  const overdue = tasks.filter(
+    (t) =>
+      t.dueDate &&
+      !t.completed &&
+      new Date(t.dueDate + "T23:59:59") < new Date(),
+  ).length;
+  return (
+    <section className="stats">
+      {[
+        ["Total", tasks.length],
+        ["Active", tasks.length - completed],
+        ["Completed", completed],
+        ["Overdue", overdue],
+      ].map(([a, b]) => (
+        <div key={a}>
+          <span>{a}</span>
+          <strong>{b}</strong>
+        </div>
+      ))}
+    </section>
+  );
+}
