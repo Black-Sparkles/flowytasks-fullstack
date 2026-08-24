@@ -1,6 +1,10 @@
-const API_ORIGIN = import.meta.env.VITE_API_ORIGIN || "http://localhost:8081";
+const API_ORIGIN =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8081"
+    : "https://flowytasks-api.onrender.com";
 
-const BASE = `${API_ORIGIN.replace(/\/$/, "")}/api`;
+const BASE = `${API_ORIGIN}/api`;
 
 async function request(path, options = {}) {
   const response = await fetch(`${BASE}${path}`, {
