@@ -1,5 +1,7 @@
 import { useState } from "react";
+import AuthPage from "./AuthPage";
 import DashboardApp from "./DashboardApp";
+import { clearSession, getStoredUser, getToken } from "./api";
 
 function WelcomePage({ onEnter }) {
   return (
@@ -22,6 +24,7 @@ function WelcomePage({ onEnter }) {
             A calmer way to keep
             <span> life moving.</span>
           </h1>
+
           <p className="welcome-summary">
             Bring your plans, priorities, and everyday to-dos into one clear
             space. FlowyTasks helps you see what needs your attention, stay
@@ -108,11 +111,38 @@ function WelcomePage({ onEnter }) {
 }
 
 export default function App() {
-  const [entered, setEntered] = useState(false);
+  const [screen, setScreen] = useState("welcome");
+  const [user, setUser] = useState(() =>
+    getToken() ? getStoredUser() : null,
+  );
 
-  if (entered) {
-    return <DashboardApp />;
+  function enter() {
+    setScreen(user ? "dashboard" : "auth");
   }
 
-  return <WelcomePage onEnter={() => setEntered(true)} />;
+  function authenticated(nextUser) {
+    setUser(nextUser);
+    setScreen("dashboard");
+  }
+
+  function logout() {
+    clearSession();
+    setUser(null);
+    setScreen("welcome");
+  }
+
+  if (screen === "auth") {
+    return (
+      <AuthPage
+        onAuthenticated={authenticated}
+        onBack={() => setScreen("welcome")}
+      />
+    );
+  }
+
+  if (screen === "dashboard" && user) {
+    return <DashboardApp user={user} onLogout={logout} />;
+  }
+
+  return <WelcomePage onEnter={enter} />;
 }

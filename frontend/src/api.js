@@ -6,18 +6,64 @@ const API_ORIGIN =
 
 const BASE = `${API_ORIGIN}/api`;
 
-async function request(path, options = {}) {
+const TOKEN_KEY = "flowytasks_token";
+const USER_KEY = "flowytasks_user";
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function getStoredUser() {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function saveSession(authResponse) {
+  localStorage.setItem(TOKEN_KEY, authResponse.token);
+  localStorage.setItem(
+    USER_KEY,
+    JSON.stringify({
+      userId: authResponse.userId,
+      name: authResponse.name,
+      email: authResponse.email,
+    }),
+  );
+}
+
+export function clearSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+}
+
+async function request(path, options = {}, authenticated = true) {
+  const token = getToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  if (authenticated && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
     ...options,
+    headers,
   });
+
+  if (response.status === 401 && authenticated) {
+    clearSession();
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-
     throw new Error(
       body.message || `Request failed with status ${response.status}`,
     );
@@ -29,6 +75,28 @@ async function request(path, options = {}) {
 
   return response.json();
 }
+
+export const authApi = {
+  register: (details) =>
+    request(
+      "/auth/register",
+      {
+        method: "POST",
+        body: JSON.stringify(details),
+      },
+      false,
+    ),
+
+  login: (credentials) =>
+    request(
+      "/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      },
+      false,
+    ),
+};
 
 export const taskApi = {
   list: () => request("/tasks"),

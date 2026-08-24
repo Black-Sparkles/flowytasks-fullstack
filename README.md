@@ -86,3 +86,37 @@ npm run dev
 - Monitoring and logging
 
 
+
+
+## v1.1.0 Authentication
+
+FlowyTasks now supports private user accounts.
+
+### Authentication features
+
+- User registration
+- User login
+- BCrypt password hashing
+- JWT-based stateless authentication
+- Per-user task ownership
+- Protected task API endpoints
+- Logout and local session handling
+- Render-generated production JWT signing secret
+
+### Authentication endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/auth/register` | Create an account |
+| POST | `/api/auth/login` | Sign in |
+| GET | `/api/health` | Public deployment health check |
+
+All `/api/tasks/**` requests require:
+
+```text
+Authorization: Bearer <token>
+```
+
+### Migration note
+
+Tasks created before v1.1.0 do not have a user owner. They remain in the database for migration safety but are intentionally not shown to authenticated users. New tasks are automatically linked to the signed-in user.
