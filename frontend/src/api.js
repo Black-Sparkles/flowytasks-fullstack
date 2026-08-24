@@ -1,20 +1,53 @@
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
-async function req(path, opt = {}) {
-  const r = await fetch(BASE + path, {
-    headers: { "Content-Type": "application/json", ...(opt.headers || {}) },
-    ...opt,
+const API_ORIGIN = import.meta.env.VITE_API_ORIGIN || "http://localhost:8081";
+
+const BASE = `${API_ORIGIN.replace(/\/$/, "")}/api`;
+
+async function request(path, options = {}) {
+  const response = await fetch(`${BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
   });
-  if (!r.ok) {
-    const b = await r.json().catch(() => ({}));
-    throw new Error(b.message || `Request failed (${r.status})`);
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+
+    throw new Error(
+      body.message || `Request failed with status ${response.status}`,
+    );
   }
-  return r.status === 204 ? null : r.json();
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
 }
+
 export const taskApi = {
-  list: () => req("/tasks"),
-  create: (t) => req("/tasks", { method: "POST", body: JSON.stringify(t) }),
-  update: (id, t) =>
-    req(`/tasks/${id}`, { method: "PUT", body: JSON.stringify(t) }),
-  toggle: (id) => req(`/tasks/${id}/toggle`, { method: "PATCH" }),
-  remove: (id) => req(`/tasks/${id}`, { method: "DELETE" }),
+  list: () => request("/tasks"),
+
+  create: (task) =>
+    request("/tasks", {
+      method: "POST",
+      body: JSON.stringify(task),
+    }),
+
+  update: (id, task) =>
+    request(`/tasks/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(task),
+    }),
+
+  toggle: (id) =>
+    request(`/tasks/${id}/toggle`, {
+      method: "PATCH",
+    }),
+
+  remove: (id) =>
+    request(`/tasks/${id}`, {
+      method: "DELETE",
+    }),
 };
