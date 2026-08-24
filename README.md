@@ -79,8 +79,8 @@ npm run dev
 - CI builds with GitHub Actions
 
 ## Next improvements
-- User authentication and authorization
-- Unit and integration tests
+- User authentication and authorization - DONE
+- Unit and integration tests - DONE
 - Search, sorting, tags, and pagination
 - Production deployment to AWS with Terraform
 - Monitoring and logging
@@ -120,3 +120,25 @@ Authorization: Bearer <token>
 ### Migration note
 
 Tasks created before v1.1.0 do not have a user owner. They remain in the database for migration safety but are intentionally not shown to authenticated users. New tasks are automatically linked to the signed-in user.
+
+
+## v1.2.0 Testing
+
+FlowyTasks now includes automated tests for authentication, private task ownership, JWT handling, and key frontend behavior.
+
+### Run backend tests
+
+```bash
+cd backend
+mvn test
+```
+
+### Run frontend tests
+
+```bash
+cd frontend
+npm install
+npm test
+```
+
+GitHub Actions automatically runs both test suites and both application builds on pushes and pull requests to `main`.

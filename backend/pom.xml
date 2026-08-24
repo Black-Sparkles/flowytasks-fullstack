@@ -14,7 +14,7 @@
 
   <groupId>com.flowytasks</groupId>
   <artifactId>flowytasks-api</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 
   <properties>
     <java.version>21</java.version>
@@ -71,6 +71,13 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
